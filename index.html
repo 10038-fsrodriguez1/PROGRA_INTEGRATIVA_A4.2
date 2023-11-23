@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Componentes Web</title>
+    <style>
+        mi-boton {
+            display: block;
+            margin: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        mi-mensaje {
+            display: block;
+            margin: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+    </style>
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            class MiBoton extends HTMLElement {
+                constructor() {
+                    super();
+                    this.attachShadow({ mode: 'open' });
+                    this.shadowRoot.innerHTML = `
+                        <style>
+                            button {
+                                background-color: #4CAF50;
+                                color: white;
+                                border: none;
+                                border-radius: 4px;
+                            }
+                        </style>
+                        <button id="miBoton">Haz clic aquí</button>`;
+                }
+
+                connectedCallback() {
+                    this.shadowRoot.querySelector('#miBoton')
+                        .addEventListener('click', () => this.enviarEvento());
+                }
+
+                enviarEvento() {
+                    const evento = new CustomEvent('boton-clickeado', {
+                        bubbles: true,
+                        composed: true,
+                        detail: { mensaje: 'Mensaje actualizado desde MiBoton' }
+                    });
+                    this.dispatchEvent(evento);
+                }
+            }
+            customElements.define('mi-boton', MiBoton);
+
+            class MiMensaje extends HTMLElement {
+                constructor() {
+                    super();
+                    this.attachShadow({ mode: 'open' });
+                    this.shadowRoot.innerHTML = `<p id="mensaje">Mensaje inicial</p>`;
+                }
+
+                connectedCallback() {
+                    window.addEventListener('boton-clickeado', (event) => this.actualizarMensaje(event.detail.mensaje));
+                }
+
+                actualizarMensaje(nuevoMensaje) {
+                    this.shadowRoot.querySelector('#mensaje').textContent = nuevoMensaje;
+                }
+            }
+            customElements.define('mi-mensaje', MiMensaje);
+        });
+    </script>
+</head> 
+<body><center>
+    <mi-boton></mi-boton>
+    <mi-mensaje></mi-mensaje>
+</body></center>
+</html>
